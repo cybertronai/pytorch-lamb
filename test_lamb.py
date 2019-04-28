@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from tensorboardX import SummaryWriter
 from torchvision import datasets, transforms
-from lamb import Lamb, log_lamb_rs
+from pytorch_lamb import Lamb, log_lamb_rs
 
 
 class Net(nn.Module):
