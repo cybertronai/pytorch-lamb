@@ -44,7 +44,7 @@ def train(args, model, device, train_loader, optimizer, epoch, event_writer):
             print(f'Train Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} ' +
                   f'({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')
 
-def test(args, model, device, test_loader, event_writer:SummaryWriter):
+def test(args, model, device, test_loader, event_writer:SummaryWriter, epoch):
     model.eval()
     test_loss = 0
     correct = 0
@@ -58,8 +58,8 @@ def test(args, model, device, test_loader, event_writer:SummaryWriter):
 
     test_loss /= len(test_loader.dataset)
     acc = correct / len(test_loader.dataset)
-    event_writer.add_scalar('loss/test_loss', test_loss)
-    event_writer.add_scalar('loss/test_acc', acc)
+    event_writer.add_scalar('loss/test_loss', test_loss, epoch - 1)
+    event_writer.add_scalar('loss/test_acc', acc, epoch - 1)
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * acc))
@@ -113,7 +113,7 @@ def main():
     writer = SummaryWriter()
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch, writer)
-        test(args, model, device, test_loader, writer)
+        test(args, model, device, test_loader, writer, epoch)
 
         
 if __name__ == '__main__':
