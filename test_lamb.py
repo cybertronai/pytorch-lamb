@@ -84,6 +84,8 @@ def main():
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--lr', type=float, default=0.0025, metavar='LR',
                         help='learning rate (default: 0.0025)')
+    parser.add_argument('--wd', type=float, default=0.01, metavar='WD',
+                        help='weight decay (default: 0.01)')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
@@ -116,7 +118,7 @@ def main():
     if args.optimizer == 'lamb':
         # When using extremely high lr such as 0.1, wd helps avoid diverging.
         # Also use better beta2 from https://www.fast.ai/2018/07/02/adam-weight-decay/
-        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=1e-3, betas=(.9, .99))
+        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99))
     else:
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
     writer = SummaryWriter()
@@ -124,6 +126,6 @@ def main():
         train(args, model, device, train_loader, optimizer, epoch, writer)
         test(args, model, device, test_loader, writer, epoch)
 
-        
+ 
 if __name__ == '__main__':
     main()
