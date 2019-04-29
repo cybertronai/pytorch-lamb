@@ -114,7 +114,8 @@ def main():
 
     model = Net().to(device)
     if args.optimizer == 'lamb':
-        optimizer = Lamb(model.parameters(), lr=args.lr)
+        # When using extremely high lr such as 0.1, wd helps avoid diverging.
+        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=.01)
     else:
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
     writer = SummaryWriter()

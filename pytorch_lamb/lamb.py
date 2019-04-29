@@ -104,10 +104,11 @@ class Lamb(Optimizer):
                 # L2 norm uses sum, but here since we're dividing, use mean to avoid overflow.
                 r1 = p.data.pow(2).mean().sqrt()
                 r2 = adam_step.pow(2).mean().sqrt()
+                r = 1 if r1 == 0 or r2 == 0 else  min(r1/r2, 10)
                 state['r1'] = r1
                 state['r2'] = r2
-                state['r'] = r1/r2
+                state['r'] = r
 
-                p.data.add_(-step_size * min(r1/r2, 10), adam_step)
+                p.data.add_(-step_size * r, adam_step)
 
         return loss
