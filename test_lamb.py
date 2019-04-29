@@ -1,9 +1,15 @@
+"""MNIST example.
+
+Based on https://github.com/pytorch/examples/blob/master/mnist/main.py
+"""
+
 from __future__ import print_function
 import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import tqdm
 from tensorboardX import SummaryWriter
 from torchvision import datasets, transforms
 from pytorch_lamb import Lamb, log_lamb_rs
@@ -29,7 +35,8 @@ class Net(nn.Module):
     
 def train(args, model, device, train_loader, optimizer, epoch, event_writer):
     model.train()
-    for batch_idx, (data, target) in enumerate(train_loader):
+    tqdm_bar = tqdm.tqdm(train_loader)
+    for batch_idx, (data, target) in enumerate(tqdm_bar):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
@@ -41,8 +48,8 @@ def train(args, model, device, train_loader, optimizer, epoch, event_writer):
             if args.optimizer == 'lamb':
                 log_lamb_rs(optimizer, event_writer, step)
             event_writer.add_scalar('loss', loss.item(), step)
-            print(f'Train Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} ' +
-                  f'({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}')
+            tqdm_bar.set_description(
+                f'Train epoch {epoch} Loss: {loss.item():.6f}')
 
 def test(args, model, device, test_loader, event_writer:SummaryWriter, epoch):
     model.eval()
