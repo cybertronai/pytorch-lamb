@@ -120,7 +120,7 @@ def main():
         # Also use better beta2 from https://www.fast.ai/2018/07/02/adam-weight-decay/
         optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99))
     else:
-        optimizer = optim.Adam(model.parameters(), lr=args.lr)
+        optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99))
     writer = SummaryWriter()
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch, writer)
