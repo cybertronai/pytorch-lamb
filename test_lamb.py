@@ -115,7 +115,8 @@ def main():
     model = Net().to(device)
     if args.optimizer == 'lamb':
         # When using extremely high lr such as 0.1, wd helps avoid diverging.
-        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=.01)
+        # Also use better beta2 from https://www.fast.ai/2018/07/02/adam-weight-decay/
+        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=1e-3, betas=(.9, .99))
     else:
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
     writer = SummaryWriter()
