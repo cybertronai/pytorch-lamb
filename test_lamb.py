@@ -8,7 +8,6 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 import tqdm
 from tensorboardX import SummaryWriter
 from torchvision import datasets, transforms
@@ -45,8 +44,7 @@ def train(args, model, device, train_loader, optimizer, epoch, event_writer):
         optimizer.step()
         if batch_idx % args.log_interval == 0:
             step = batch_idx * len(data) + (epoch-1) * len(train_loader.dataset)
-            if args.optimizer == 'lamb':
-                log_lamb_rs(optimizer, event_writer, step)
+            log_lamb_rs(optimizer, event_writer, step)
             event_writer.add_scalar('loss', loss.item(), step)
             tqdm_bar.set_description(
                 f'Train epoch {epoch} Loss: {loss.item():.6f}')
@@ -80,7 +78,7 @@ def main():
                         help='which optimizer to use')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=10, metavar='N',
+    parser.add_argument('--epochs', type=int, default=6, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--lr', type=float, default=0.0025, metavar='LR',
                         help='learning rate (default: 0.0025)')
@@ -120,7 +118,8 @@ def main():
         # Also use better beta2 from https://www.fast.ai/2018/07/02/adam-weight-decay/
         optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99))
     else:
-        optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99))
+        # Don't actually use the calculated trust ratio, which makes this equivalent to Adam.
+        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99), adam=True)
     writer = SummaryWriter()
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch, writer)

@@ -34,13 +34,15 @@ class Lamb(Optimizer):
         eps (float, optional): term added to the denominator to improve
             numerical stability (default: 1e-8)
         weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
+        adam (bool, optional): always use trust ratio = 1, which turns this into
+            Adam. Useful for comparison purposes.
 
     .. _Reducing BERT Pre-Training Time from 3 Days to 76 Minutes:
         https://arxiv.org/abs/1904.00962
     """
 
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8,
-                 weight_decay=0):
+                 weight_decay=0, adam=False):
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= eps:
@@ -51,6 +53,7 @@ class Lamb(Optimizer):
             raise ValueError("Invalid beta parameter at index 1: {}".format(betas[1]))
         defaults = dict(lr=lr, betas=betas, eps=eps,
                         weight_decay=weight_decay)
+        self.adam = adam
         super(Lamb, self).__init__(params, defaults)
 
     def step(self, closure=None):
@@ -108,6 +111,8 @@ class Lamb(Optimizer):
                 state['r1'] = r1
                 state['r2'] = r2
                 state['r'] = r
+                if self.adam:
+                    r = 1
 
                 p.data.add_(-step_size * r, adam_step)
 
