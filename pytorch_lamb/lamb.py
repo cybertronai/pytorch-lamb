@@ -15,6 +15,8 @@ def log_lamb_rs(optimizer: Optimizer, event_writer: SummaryWriter, token_count: 
         for p in group['params']:
             state = optimizer.state[p]
             for i in ('r', 'r1', 'r2'):
+                if i not in state:
+                    continue
                 results[i].append(state[i])
 
     for k, v in results.items():
