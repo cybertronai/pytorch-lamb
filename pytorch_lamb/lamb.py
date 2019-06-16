@@ -96,7 +96,6 @@ class Lamb(Optimizer):
                 exp_avg.mul_(beta1).add_(1 - beta1, grad)
                 # v_t
                 exp_avg_sq.mul_(beta2).addcmul_(1 - beta2, grad, grad)
-                denom = exp_avg_sq.sqrt().add(group['eps'])
 
                 # Paper v3 does not use debiasing.
                 # bias_correction1 = 1 - beta1 ** state['step']
@@ -104,14 +103,13 @@ class Lamb(Optimizer):
                 # Apply bias to lr to avoid broadcast.
                 step_size = group['lr'] # * math.sqrt(bias_correction2) / bias_correction1
 
-                weight_norm = p.data.pow(2).sum().sqrt()
+                weight_norm = p.data.pow(2).sum().sqrt().clamp(0, 10)
 
-                adam_step = exp_avg / denom
+                adam_step = exp_avg / exp_avg_sq.sqrt().add(group['eps'])
                 if group['weight_decay'] != 0:
                     adam_step.add_(group['weight_decay'], p.data)
 
                 adam_norm = adam_step.pow(2).sum().sqrt()
-                # TODO: clamp this?
                 trust_ratio = weight_norm / adam_norm
                 state['weight_norm'] = weight_norm
                 state['adam_norm'] = adam_norm

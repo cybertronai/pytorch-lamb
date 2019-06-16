@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name="pytorch_lamb",
     author="Ben Mann",
-    version='0.0.0',
+    version='1.0.0',
     author_email="me@benjmann.net",
     packages=find_packages(exclude=["*.tests", "*.tests.*",
                                     "tests.*", "tests"]),

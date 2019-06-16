@@ -113,13 +113,7 @@ def main():
 
 
     model = Net().to(device)
-    if args.optimizer == 'lamb':
-        # When using extremely high lr such as 0.1, wd helps avoid diverging.
-        # Also use better beta2 from https://www.fast.ai/2018/07/02/adam-weight-decay/
-        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99))
-    else:
-        # Don't actually use the calculated trust ratio, which makes this equivalent to Adam.
-        optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .99), adam=True)
+    optimizer = Lamb(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=(.9, .999), adam=(args.optimizer == 'adam'))
     writer = SummaryWriter()
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch, writer)

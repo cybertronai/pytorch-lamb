@@ -1,5 +1,7 @@
 Implementation of https://arxiv.org/abs/1904.00962 for large batch, large learning rate training.
 
+The paper doesn't specify clamp values for ϕ, so I use 10.
+
 Bonus: TensorboardX logging (example below).
 
 ## Try the sample
@@ -12,12 +14,11 @@ tensorboard --logdir=runs
 ```
 
 ## Sample results
-At `--lr=.1`, the Adam optimizer is unable to train. With a little weight decay, LAMB avoids diverging!
+At `--lr=.02`, the Adam optimizer is unable to train.
 
-Green: `python test_lamb.py --batch-size=512 --lr=.1 --wd=0 --log-interval=30 --optimizer=lamb`
+Red: `python test_lamb.py --batch-size=512 --lr=.02 --wd=.01 --log-interval=30 --optimizer=adam`
 
-Blue: `python test_lamb.py --batch-size=512 --lr=.1 --wd=.01 --log-interval=30 --optimizer=lamb`
+Blue: `python test_lamb.py --batch-size=512 --lr=.02 --wd=.01 --log-interval=30 --optimizer=lamb`
 ![](images/loss.png)
 
-`r1` is the L2 norm of the weights. You can see in the green plot that some of the weights start to run away, which leads to divergence. This is why weight decay helps.
 ![](images/histogram.png)
