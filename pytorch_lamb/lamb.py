@@ -110,7 +110,10 @@ class Lamb(Optimizer):
                     adam_step.add_(group['weight_decay'], p.data)
 
                 adam_norm = adam_step.pow(2).sum().sqrt()
-                trust_ratio = weight_norm / adam_norm
+                if weight_norm == 0 or adam_norm == 0:
+                    trust_ratio = 1
+                else:
+                    trust_ratio = weight_norm / adam_norm
                 state['weight_norm'] = weight_norm
                 state['adam_norm'] = adam_norm
                 state['trust_ratio'] = trust_ratio
